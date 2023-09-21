@@ -197,19 +197,31 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         "*** YOUR CODE HERE ***"
         legalActions = gameState.getLegalActions(0)
         bestValue = -float('inf')
+        bestActionIndex = None
+        currDepth = 0
         alpha = -float('inf')
         beta = float('inf')
-        bestActionIndex = None
-        currDepth = 1
-        for agentIndex in range(gameState.getNumAgents()):
-            successors = [gameState.generateSuccessor(agentIndex, action) for action in legalActions]
-            for i in range(len(successors)):
-                currValue = self.value(successors[i], agentIndex, currDepth, alpha, beta)
-                if currValue > bestValue:
-                    bestValue = currValue
-                    bestActionIndex = i
-        currDepth += 1
+        successors = [gameState.generateSuccessor(0, action) for action in legalActions]
+        for i in range(len(successors)):
+            currValue = self.value(successors[i], 1, currDepth, alpha, beta)
+            if currValue > bestValue:
+                bestValue = currValue
+                bestActionIndex = i
         return legalActions[bestActionIndex]
+        # legalActions = gameState.getLegalActions(0)
+        # bestValue = -float('inf')
+        
+        # bestActionIndex = None
+        # currDepth = 1
+        # for agentIndex in range(gameState.getNumAgents()):
+        #     successors = [gameState.generateSuccessor(agentIndex, action) for action in legalActions]
+        #     for i in range(len(successors)):
+        #         currValue = self.value(successors[i], agentIndex, currDepth, alpha, beta)
+        #         if currValue > bestValue:
+        #             bestValue = currValue
+        #             bestActionIndex = i
+        # currDepth += 1
+        # return legalActions[bestActionIndex]
     
     def value(self, gameState, agentIndex, currDepth, alpha, beta):
         # if the state is terminal, return state's utility
@@ -227,8 +239,8 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         actions = gameState.getLegalActions(agentIndex)
         successors = [gameState.generateSuccessor(agentIndex, action) for action in actions]
         for successor in successors:
-            v = max(v, self.value(successor, agentIndex, currDepth, alpha, beta))
-            if v > beta:
+            v = max(v, self.value(successor, agentIndex + 1, currDepth, alpha, beta))
+            if v >= beta:
                 return v
             alpha = max(alpha, v)
         return v
@@ -238,8 +250,11 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         actions = gameState.getLegalActions(agentIndex)
         successors = [gameState.generateSuccessor(agentIndex, action) for action in actions]
         for successor in successors:
-            v = min(v, self.value(successor, agentIndex, currDepth, alpha, beta))
-            if v < alpha:
+            if (agentIndex + 1) == gameState.getNumAgents():
+                currDepth += 1
+                agentIndex = -1
+            v = min(v, self.value(successor, agentIndex + 1, currDepth, alpha, beta))
+            if v <= alpha:
                 return v
             beta = min(beta, v)
         return v
@@ -259,14 +274,13 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         legalActions = gameState.getLegalActions(0)
         bestValue = -float('inf')
         bestActionIndex = None
-        currDepth = 1
-        for agentIndex in range(gameState.getNumAgents()):
-            successors = [gameState.generateSuccessor(agentIndex, action) for action in legalActions]
-            for i in range(len(successors)):
-                currValue = self.value(successors[i], agentIndex, currDepth)
-                if currValue > bestValue:
-                    bestValue = currValue
-                    bestActionIndex = i
+        currDepth = 0
+        successors = [gameState.generateSuccessor(0, action) for action in legalActions]
+        for i in range(len(successors)):
+            currValue = self.value(successors[i], 1, currDepth)
+            if currValue > bestValue:
+                bestValue = currValue
+                bestActionIndex = i
         return legalActions[bestActionIndex]
     
     def value(self, gameState, agentIndex, currDepth):
@@ -275,7 +289,6 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
             return self.evaluationFunction(gameState)
         # if the next agent is max, return max-value(state)
         if agentIndex == 0:
-            currDepth += 1
             return self.maxValue(gameState, agentIndex, currDepth)
         # if the next agent is min, return min-value(state)
         if agentIndex > 0:
@@ -286,7 +299,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         actions = gameState.getLegalActions(agentIndex)
         successors = [gameState.generateSuccessor(agentIndex, action) for action in actions]
         for successor in successors:
-            v = max(v, self.value(successor, agentIndex, currDepth))
+            v = max(v, self.value(successor, agentIndex + 1, currDepth))
         return v
     
     def expValue(self, gameState, agentIndex, currDepth):
@@ -294,8 +307,11 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         actions = gameState.getLegalActions(agentIndex)
         successors = [gameState.generateSuccessor(agentIndex, action) for action in actions]
         for successor in successors:
+            if (agentIndex + 1) == gameState.getNumAgents():
+                currDepth += 1
+                agentIndex = -1
             p = 1/(gameState.getNumAgents() - 1)
-            v += p * self.value(successor, agentIndex, currDepth)
+            v += p * self.value(successor, agentIndex + 1, currDepth)
         return v
 
 def betterEvaluationFunction(currentGameState: GameState):
