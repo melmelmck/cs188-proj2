@@ -157,27 +157,46 @@ class MinimaxAgent(MultiAgentSearchAgent):
         gameState.isLose():
         Returns whether or not the game state is a losing state
         """
-        def value(gameState):
-            # if the state is terminal, return state's utility
-            if gameState.isWin() or gameState.isLose():
-                return self.evaluationFunction(gameState)
-            # if the next agent is max, return max-value(state)
-            if self.index == 0:
-                return max_value(gameState)
-            # if the next agent is min, return min-value(state)
-            if self.index > 0:
-                return min_value(gameState)
+        legalActions = gameState.getLegalActions(0)
+        successors = [gameState.generateSuccessor(0, action) for action in legalActions]
+        bestValue = -float('inf')
+        bestActionIndex = None
+        for i in len(successors):
+            currValue = self.value(successors[i], 0)
+            if currValue > bestValue:
+                bestValue = currValue
+                bestActionIndex = i
+        return legalActions[bestActionIndex]
+
+    def value(self, gameState):
+        # if the state is terminal, return state's utility
+        if gameState.isWin() or gameState.isLose():
+            return self.evaluationFunction(gameState)
+        # if the next agent is max, return max-value(state)
+        if self.index == 0:
+            return maxValue(gameState, self.index)
+        # if the next agent is min, return min-value(state)
+        if self.index > 0:
+            return minValue(gameState, self.index)
+        
+    def maxValue(gameState, agentIndex):
+        v = -float('inf')
         actions = gameState.getLegalActions(0)
-        def max_value(gameState):
-            v = -float('inf')
-            for successor in gameState.generateSuccessor(self.depth, actions[0]):
-                v = max(v, value(successor))
-            return v
-        def min_value(gameState):
-            v = float('inf')
-            for successor in gameState.generateSuccessor(self.depth, actions[0]):
-                v = min(v, value(successor))
-            return v
+        successors = [gameState.generateSuccessor(0, action) for action in actions]
+        for successor in successors:
+            v = max(v, value(successor))
+        return v
+    
+    def minValue(gameState, agentIndex):
+        """
+        helper function
+        """
+        v = float('inf')
+        actions = gameState.getLegalActions(0)
+        successors = [gameState.generateSuccessor(0, action) for action in actions]
+        for successor in successors:
+            v = min(v, value(successor))
+        return v
 
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
