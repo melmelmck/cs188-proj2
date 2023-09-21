@@ -176,10 +176,10 @@ class MinimaxAgent(MultiAgentSearchAgent):
         if gameState.isWin() or gameState.isLose() or self.depth == currDepth:
             return self.evaluationFunction(gameState)
         # if the next agent is max, return max-value(state)
-        if self.index == 0:
+        if agentIndex == 0:
             return self.maxValue(gameState, agentIndex, currDepth)
         # if the next agent is min, return min-value(state)
-        if self.index > 0:
+        if agentIndex > 0:
             return self.minValue(gameState, agentIndex, currDepth)
         
     def maxValue(self, gameState, agentIndex, currDepth):
@@ -230,10 +230,10 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         if gameState.isWin() or gameState.isLose() or self.depth == currDepth:
             return self.evaluationFunction(gameState)
         # if the next agent is max, return max-value(state)
-        if self.index == 0:
+        if agentIndex == 0:
             return self.maxValue(gameState, agentIndex, currDepth, alpha, beta)
         # if the next agent is min, return min-value(state)
-        if self.index > 0:
+        if agentIndex > 0:
             return self.minValue(gameState, agentIndex, currDepth, alpha, beta)
         
     def maxValue(self, gameState, agentIndex, currDepth, alpha, beta):
