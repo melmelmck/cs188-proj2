@@ -294,12 +294,13 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         v = 0
         actions = gameState.getLegalActions(agentIndex)
         successors = [gameState.generateSuccessor(agentIndex, action) for action in actions]
+        next_ind = agentIndex + 1
         for successor in successors:
-            if (agentIndex + 1) == gameState.getNumAgents():
+            if next_ind == gameState.getNumAgents():
                 currDepth += 1
-                agentIndex = -1
-            p = 1/(gameState.getNumAgents() - 1)
-            v += p * self.value(successor, agentIndex + 1, currDepth)
+                next_ind = 0
+            p = 1/(len(actions))
+            v += p * self.value(successor, next_ind, currDepth)
         return v
 
 def betterEvaluationFunction(currentGameState: GameState):
