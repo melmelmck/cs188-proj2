@@ -308,24 +308,39 @@ def betterEvaluationFunction(currentGameState: GameState):
     Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
     evaluation function (question 5).
 
-    DESCRIPTION: <write something here so we know what you did>
+    DESCRIPTION: Linear combination of the current game state's score, the distance away from the closest fruit, 
+    how far away the ghosts are, and if the ghosts are stunned. How much food is remaining. 
     """
     newFood = currentGameState.getFood()
     newPos = currentGameState.getPacmanPosition()
+    newGhostPos = currentGameState.getGhostPositions()
     newGhostStates = currentGameState.getGhostStates()
     eval = 0
     dist = []
+    # calculate the distance away from the closest fruit
     for food in newFood.asList():
         dist.append(util.manhattanDistance(food, newPos))
-    if (sum(dist) != 0):
-        eval += 1/sum(dist)
+    if (len(dist) != 0):
+        eval += 1/min(dist)
+
+    # calculate how much food is remaining
     if (len(newFood.asList()) != 0):
         eval += 1/len(newFood.asList()) 
-    distGhost = []
-    for ghost in newGhostStates:
-        distGhost.append(util.manhattanDistance(ghost, newPos))
 
-    return eval + (currentGameState.getScore() * 0.7)
+    # calculate how far away the ghosts are
+    distGhost = []
+    for ghost in newGhostPos:
+        distGhost.append(util.manhattanDistance(ghost, newPos))
+    if (len(distGhost) != 0):
+        if (min(distGhost) < 2 and min(distGhost) != 0):
+            eval += 1/min(distGhost)
+
+    # ghosts stunned timer list
+    newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
+    if (len(newScaredTimes) != 0 and max(newScaredTimes) != 0):
+        eval += 1/max(newScaredTimes)
+
+    return eval + (currentGameState.getScore() * 0.6)
 
 # Abbreviation
 better = betterEvaluationFunction
